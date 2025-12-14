@@ -1,0 +1,30 @@
+name: Dependency Import Check
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+jobs:
+  check-imports:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv (Rust-based Python tool)
+        uses: astral-sh/setup-uv@v7
+        with:
+          version: "0.9.17"
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version-file: "pyproject.toml"
+
+      - name: Install dependencies with uv
+        run: uv sync
+
+      - name: Run import validation script
+        run: uv run python -c "import rosetta"
