@@ -2,7 +2,6 @@ import os
 import random
 
 import azure.cognitiveservices.speech as speechsdk
-from dotenv import load_dotenv
 
 
 class Foundry:

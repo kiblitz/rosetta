@@ -1,8 +1,10 @@
+from dotenv import load_dotenv
+
 from .azure import Foundry
 
 
 def main():
-    print("hello world")
+    load_dotenv()
     voice_ids = [
         "zh-HK-WanLungNeural",
         "zh-HK-HiuGaaiNeural",
