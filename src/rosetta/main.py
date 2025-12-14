@@ -1,10 +1,16 @@
 from dotenv import load_dotenv
 
+from .anki import Deck
 from .azure import Foundry
 
 
 def main():
     load_dotenv()
+
+    deck = Deck("canto.apkg")
+    for card in deck.cards:
+        print(card)
+
     voice_ids = [
         "zh-HK-WanLungNeural",
         "zh-HK-HiuGaaiNeural",
