@@ -11,4 +11,6 @@ def main():
     ]
     foundry = Foundry(voice_ids)
     for i in range(4):
-        foundry.run()
+        print("Enter some text >")
+        text = input()
+        foundry.speak(text)

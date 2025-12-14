@@ -26,38 +26,46 @@ class Foundry:
             voice_id: _speech_synthesizer(voice_id) for voice_id in voice_ids
         }
 
+    def _foundry_api_msg(self):
+        msg = "FOUNDRY_API_KEY: {}".format(self.foundry_api_key)
+        msg += "\nFOUNDRY_API_ENDPOINT: {}".format(self.foundry_api_endpoint)
+        return msg
+
     def speak(self, text, *, voice_id=None):
         voice_id = (
             voice_id
             if voice_id is not None
             else random.choice(list(self.speech_synthesizers))
         )
-        return self.speech_synthesizers[voice_id].speak_text_async(text).get()
-
-    def run(self):
-        print("Enter some text >")
-        text = input()
-        speech_synthesis_result = self.speak(text)
+        speech_synthesis_result = (
+            self.speech_synthesizers[voice_id].speak_text_async(text).get()
+        )
 
         if (
-            speech_synthesis_result.reason
+            speech_synthesis_result is not None
+            and speech_synthesis_result.reason
             == speechsdk.ResultReason.SynthesizingAudioCompleted
         ):
             return
-        elif speech_synthesis_result.reason == speechsdk.ResultReason.Canceled:
-            cancellation_details = speech_synthesis_result.cancellation_details
-            error_msg = "Speech synthesis canceled: {}".format(
-                cancellation_details.reason
-            )
 
-            if cancellation_details.reason == speechsdk.CancellationReason.Error:
-                if cancellation_details.error_details:
-                    error_msg += "\nError details: {}".format(
-                        cancellation_details.error_details
-                    )
-                    error_msg += "\nFOUNDRY_API_KEY: {}".format(self.foundry_api_key)
-                    error_msg += "\nFOUNDRY_API_ENDPOINT: {}".format(
-                        self.foundry_api_endpoint
-                    )
+        if speech_synthesis_result is None:
+            error_msg = "Speech synthesis result is null"
+        else:
+            if speech_synthesis_result.reason == speechsdk.ResultReason.Canceled:
+                cancellation_details = speech_synthesis_result.cancellation_details
+                error_msg = "Speech synthesis canceled: {}".format(
+                    cancellation_details.reason
+                )
 
-            raise RuntimeError(error_msg)
+                if cancellation_details.reason == speechsdk.CancellationReason.Error:
+                    if cancellation_details.error_details:
+                        error_msg += "\nError details: {}".format(
+                            cancellation_details.error_details
+                        )
+            else:
+                error_msg = "Speech synthesis error with reason: {}".format(
+                    speech_synthesis_result.reason
+                )
+
+        error_msg += "\n" + self._foundry_api_msg()
+        raise RuntimeError(error_msg)
