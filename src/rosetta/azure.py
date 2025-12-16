@@ -5,10 +5,12 @@ import azure.cognitiveservices.speech as speechsdk
 
 
 class Foundry:
-    def __init__(self, voice_ids):
+    def __init__(self, voice_ids=[]):
         self.foundry_api_key = os.environ.get("FOUNDRY_API_KEY")
         self.foundry_api_endpoint = os.environ.get("FOUNDRY_API_ENDPOINT")
+        self.update_speech_synthesizer(voice_ids)
 
+    def update_speech_synthesizer(self, voice_ids):
         def _speech_synthesizer(voice_id):
             speech_config = speechsdk.SpeechConfig(
                 subscription=self.foundry_api_key,

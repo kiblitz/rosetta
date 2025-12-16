@@ -18,7 +18,9 @@ class Deck:
     DB_FILENAME = "collection.anki21"
     CARD_SPLIT = "\x1f"
 
-    def __init__(self, apkg_filename):
+    def __init__(self, apkg_filename, *, name):
+        self.name = name
+
         with zipfile.ZipFile(apkg_filename, "r") as zf:
             with zf.open(Deck.DB_FILENAME) as db_file:
                 db_bytes = db_file.read()
