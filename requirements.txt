@@ -10,8 +10,14 @@ certifi==2025.11.12
     # via requests
 charset-normalizer==3.4.4
     # via requests
+customtkinter==5.2.2
+    # via rosetta (./pyproject.toml)
+darkdetect==0.8.0
+    # via customtkinter
 idna==3.11
     # via requests
+packaging==25.0
+    # via customtkinter
 python-dotenv==1.2.1
     # via rosetta (./pyproject.toml)
 requests==2.32.5

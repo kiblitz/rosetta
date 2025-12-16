@@ -12,6 +12,7 @@ license-files = ["LICEN[CS]E*"]
 dependencies = [
     "azure-cognitiveservices-speech==1.47.0",
     "azure-core==1.37.0",
+    "customtkinter==5.2.2",
     "python-dotenv==1.2.1",
 ]
 
