@@ -1,4 +1,5 @@
 import tkinter
+from tkinter import filedialog
 
 import customtkinter
 from ttkwidgets.autocomplete import AutocompleteCombobox
@@ -123,7 +124,7 @@ class Ui(customtkinter.CTkFrame):
             delete_button.pack(side="right", padx=10)
 
     def _load_anki_deck(self):
-        filepath = tkinter.filedialog.askopenfilename(
+        filepath = filedialog.askopenfilename(
             title="Select anki deck",
             filetypes=(("Anki decks", "*.apkg"), ("All files", "*.*")),
         )
