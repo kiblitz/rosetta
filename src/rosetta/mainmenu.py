@@ -4,21 +4,20 @@ from tkinter import filedialog
 import customtkinter
 from ttkwidgets.autocomplete import AutocompleteCombobox
 
-from .azure import Foundry
 from .deck import Deck
 
 
 class Ui(customtkinter.CTkFrame):
-    def __init__(self, controller, *, parent_frame):
+    def __init__(self, controller, *, parent_frame, foundry):
         super().__init__(parent_frame)
         self.controller = controller
+
+        self.foundry = foundry
 
         self._setup_state()
         self._setup_ui()
 
     def _setup_state(self):
-        self.foundry = Foundry()
-
         self.decks = {}
         self.voice_ids = set()
 

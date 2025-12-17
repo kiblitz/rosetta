@@ -1,6 +1,7 @@
 import customtkinter
 from dotenv import load_dotenv
 
+from .azure import Foundry
 from .mainmenu import Ui as MainmenuUi
 
 
@@ -15,7 +16,11 @@ class Ui(customtkinter.CTk):
         parent_frame.grid_rowconfigure(0, weight=1)
         parent_frame.grid_columnconfigure(0, weight=1)
 
-        self.mainmenu = MainmenuUi(self, parent_frame=parent_frame)
+        self.foundry = Foundry()
+
+        self.mainmenu = MainmenuUi(
+            self, parent_frame=parent_frame, foundry=self.foundry
+        )
         self.mainmenu.grid(row=0, column=0, sticky="nsew")
 
         self.show_mainmenu()
