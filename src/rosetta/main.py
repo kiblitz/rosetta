@@ -2,6 +2,7 @@ import tkinter
 
 import customtkinter
 from dotenv import load_dotenv
+from ttkwidgets.autocomplete import AutocompleteCombobox
 
 from .anki import Deck
 from .azure import Foundry
@@ -27,6 +28,8 @@ class Ui(customtkinter.CTk):
         self._setup_ui()
 
     def _setup_state(self):
+        self.foundry = Foundry()
+
         self.decks = {}
         self.voice_ids = set()
 
@@ -145,8 +148,9 @@ class Ui(customtkinter.CTk):
         popup_example_voice_id.pack(padx=20, pady=10)
 
         popup_voice_id_var = tkinter.StringVar(value="")
-        popup_voice_id = customtkinter.CTkEntry(
+        popup_voice_id = AutocompleteCombobox(
             popup,
+            completevalues=self.foundry.get_voice_id_list(),
             textvariable=popup_voice_id_var,
         )
         popup_voice_id.pack(fill="x", padx=20, anchor="w")
