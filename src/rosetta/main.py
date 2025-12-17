@@ -115,12 +115,27 @@ class Ui(customtkinter.CTk):
             widget.destroy()
 
         for idx, voice_id in enumerate(self.voice_ids):
+            row_frame = customtkinter.CTkFrame(self.voice_id_scroll_frame)
+            row_frame.pack(fill="both", expand=True, padx=10, pady=5)
+
             label = customtkinter.CTkLabel(
-                self.voice_id_scroll_frame,
+                row_frame,
                 text=voice_id,
             )
 
-            label.grid(row=idx, column=0, padx=10, pady=(0, 10), sticky="ew")
+            def _on_delete(voice_id):
+                self.voice_ids.discard(voice_id)
+                self._setup_voice_ids_scroll()
+
+            delete_button = customtkinter.CTkButton(
+                row_frame,
+                text="-",
+                command=lambda voice_id=voice_id: _on_delete(voice_id),
+                fg_color="red",
+            )
+
+            label.pack(side="left", padx=10)
+            delete_button.pack(side="right", padx=10)
 
     def _load_anki_deck(self):
         filepath = tkinter.filedialog.askopenfilename(
@@ -216,6 +231,7 @@ class Ui(customtkinter.CTk):
                 rosetta_deck,
                 title,
                 move_voice_id_text,
+                move_voice_id_color,
                 move_voice_id_lambda,
                 side,
                 padx,
@@ -246,7 +262,7 @@ class Ui(customtkinter.CTk):
                         popup_voice_id_row_frame,
                         text=move_voice_id_text,
                         command=lambda voice_id=voice_id: _on_move_voice_id(voice_id),
-                        fg_color="red",
+                        fg_color=move_voice_id_color,
                     )
                     move_button.pack(side="right", padx=10, pady=5)
 
@@ -260,6 +276,7 @@ class Ui(customtkinter.CTk):
                     rosetta_deck=rosetta_deck,
                     title="Voice IDs",
                     move_voice_id_text="-",
+                    move_voice_id_color="red",
                     move_voice_id_lambda=lambda voice_id: rosetta_deck.voice_ids.discard(
                         voice_id
                     ),
@@ -271,6 +288,7 @@ class Ui(customtkinter.CTk):
                     rosetta_deck=rosetta_deck,
                     title="All voice IDs",
                     move_voice_id_text="+",
+                    move_voice_id_color="green",
                     move_voice_id_lambda=lambda voice_id: rosetta_deck.voice_ids.add(
                         voice_id
                     ),
