@@ -14,15 +14,23 @@ customtkinter==5.2.2
     # via rosetta (./pyproject.toml)
 darkdetect==0.8.0
     # via customtkinter
+fsrs==6.3.0
+    # via rosetta (./pyproject.toml)
 idna==3.11
     # via requests
 packaging==25.0
     # via customtkinter
+pillow==12.0.0
+    # via ttkwidgets
 python-dotenv==1.2.1
     # via rosetta (./pyproject.toml)
 requests==2.32.5
     # via azure-core
+ttkwidgets==0.13.0
+    # via rosetta (./pyproject.toml)
 typing-extensions==4.15.0
-    # via azure-core
+    # via
+    #   azure-core
+    #   fsrs
 urllib3==2.6.2
     # via requests

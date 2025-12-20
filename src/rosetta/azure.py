@@ -12,6 +12,7 @@ class Foundry:
         self.update_speech_synthesizer(voice_ids)
         self.speech_synthesizer_for_generic_ops = self._speech_synthesizer(None)
         self.voice_id_list = None
+        self.last_voice_id_used = None
 
     def update_speech_synthesizer(self, voice_ids):
         self.speech_synthesizers |= {
@@ -54,12 +55,27 @@ class Foundry:
         )
         raise RuntimeError(error_msg)
 
-    def speak(self, text, *, voice_id=None):
+    def speak(self, text, *, voice_id=None, use_last_voice_id=False):
+        if voice_id is not None and use_last_voice_id:
+            raise RuntimeError(
+                "[voice_id={}] cannot be set while [use_last_voice_id=True]".format(
+                    voice_id
+                )
+            )
+        if use_last_voice_id and self.last_voice_id_used is None:
+            raise RuntimeError(
+                "[use_last_voice_id=True] cannot be set before [last_voice_id_used] is valuable"
+            )
+
         voice_id = (
             voice_id
             if voice_id is not None
+            else self.last_voice_id_used
+            if use_last_voice_id
             else random.choice(list(self.speech_synthesizers))
         )
+        self.last_voice_id_used = voice_id
+
         speech_synthesis_result = (
             self.speech_synthesizers[voice_id].speak_text_async(text).get()
         )

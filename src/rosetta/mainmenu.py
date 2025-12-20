@@ -4,7 +4,7 @@ from tkinter import filedialog
 import customtkinter
 from ttkwidgets.autocomplete import AutocompleteCombobox
 
-from .deck import Deck
+from .anki import Deck
 
 
 class Ui(customtkinter.CTkFrame):
@@ -70,23 +70,21 @@ class Ui(customtkinter.CTkFrame):
             widget.destroy()
 
         for idx, deckname in enumerate(self.decks):
-            rosetta_deck = self.decks[deckname]
+            deck = self.decks[deckname]
             row_frame = customtkinter.CTkFrame(self.deck_scroll_frame)
             row_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
             button = customtkinter.CTkButton(
                 row_frame,
                 text=deckname,
-                command=lambda text=deckname: print("TODO: open deck {}".format(text)),
+                command=lambda deck=deck: self.controller.show_review(deck),
             )
-            voice_ids = customtkinter.CTkLabel(
-                row_frame, text=rosetta_deck.voice_ids_str()
-            )
+            voice_ids = customtkinter.CTkLabel(row_frame, text=deck.voice_ids_str())
             edit_button = customtkinter.CTkButton(
                 row_frame,
                 text="edit",
-                command=lambda rosetta_deck=rosetta_deck: self._deck_edit_popup(
-                    rosetta_deck, already_exists=True
+                command=lambda deck=deck: self._deck_edit_popup(
+                    deck, already_exists=True
                 ),
                 fg_color="red",
             )
@@ -131,8 +129,8 @@ class Ui(customtkinter.CTkFrame):
             proposed_deckname = (
                 filepath.removesuffix(".apkg").split("/")[-1].split("\\")[-1]
             )
-            rosetta_deck = Deck(filepath, name=proposed_deckname)
-            self._deck_edit_popup(rosetta_deck, already_exists=False)
+            deck = Deck(filepath, name=proposed_deckname)
+            self._deck_edit_popup(deck, already_exists=False)
 
     def _add_voice_id(self):
         popup = customtkinter.CTkToplevel(self)
@@ -164,7 +162,7 @@ class Ui(customtkinter.CTkFrame):
         popup_ok = customtkinter.CTkButton(popup, text="OK", command=_on_ok)
         popup_ok.pack(padx=20, pady=10, anchor="w")
 
-    def _deck_edit_popup(self, rosetta_deck, *, already_exists):
+    def _deck_edit_popup(self, deck, *, already_exists):
         popup = customtkinter.CTkToplevel(self)
         popup.title("Add/edit deck")
         popup.transient(self.controller)
@@ -179,40 +177,40 @@ class Ui(customtkinter.CTkFrame):
         popup_header_parent_frame = customtkinter.CTkFrame(popup)
         popup_header_parent_frame.pack(fill="both")
 
-        popup_deckname_var = tkinter.StringVar(value=rosetta_deck.deck.name)
+        popup_deckname_var = tkinter.StringVar(value=deck.name)
         popup_deckname = customtkinter.CTkEntry(
             popup_header_parent_frame, textvariable=popup_deckname_var
         )
         popup_deckname.pack(side="left", padx=10, pady=(0, 10), anchor="w")
 
-        def _on_ok(rosetta_deck):
+        def _on_ok(deck):
             popup.destroy()
             if already_exists:
-                self.decks.pop(rosetta_deck.deck.name)
+                self.decks.pop(deck.name)
             deckname = popup_deckname_var.get()
             if len(deckname) > 0:
-                rosetta_deck.deck.name = deckname
-                self.decks[deckname] = rosetta_deck
+                deck.name = deckname
+                self.decks[deckname] = deck
                 self._setup_decks_scroll()
 
         popup_ok = customtkinter.CTkButton(
             popup_header_parent_frame,
             text="OK",
-            command=lambda rosetta_deck=rosetta_deck: _on_ok(rosetta_deck),
+            command=lambda deck=deck: _on_ok(deck),
         )
         popup_ok.pack(side="right", padx=10, pady=10, anchor="w")
 
         popup_voice_id_parent_frame = customtkinter.CTkFrame(popup)
         popup_voice_id_parent_frame.pack(fill="both")
 
-        def _setup_voice_id_frame(rosetta_deck):
+        def _setup_voice_id_frame(deck):
             for widget in popup_voice_id_parent_frame.winfo_children():
                 widget.destroy()
 
             def _setup_voice_id_scroll_and_return_pack(
                 get_voice_ids,
                 *,
-                rosetta_deck,
+                deck,
                 title,
                 move_voice_id_text,
                 move_voice_id_color,
@@ -222,13 +220,13 @@ class Ui(customtkinter.CTkFrame):
             ):
                 def _on_move_voice_id(voice_id):
                     move_voice_id_lambda(voice_id)
-                    _setup_voice_id_frame(rosetta_deck)
+                    _setup_voice_id_frame(deck)
 
                 popup_voice_id_scroll_frame = customtkinter.CTkScrollableFrame(
                     popup_voice_id_parent_frame, label_text=title
                 )
 
-                for idx, voice_id in enumerate(get_voice_ids(rosetta_deck)):
+                for idx, voice_id in enumerate(get_voice_ids(deck)):
                     popup_voice_id_row_frame = customtkinter.CTkFrame(
                         popup_voice_id_scroll_frame
                     )
@@ -256,26 +254,24 @@ class Ui(customtkinter.CTkFrame):
 
             pack_voice_id_scrolls = [
                 _setup_voice_id_scroll_and_return_pack(
-                    lambda rosetta_deck: rosetta_deck.voice_ids,
-                    rosetta_deck=rosetta_deck,
+                    lambda deck: deck.voice_ids,
+                    deck=deck,
                     title="Voice IDs",
                     move_voice_id_text="-",
                     move_voice_id_color="red",
-                    move_voice_id_lambda=lambda voice_id: rosetta_deck.voice_ids.discard(
+                    move_voice_id_lambda=lambda voice_id: deck.voice_ids.discard(
                         voice_id
                     ),
                     side="left",
                     padx=(10, 5),
                 ),
                 _setup_voice_id_scroll_and_return_pack(
-                    lambda rosetta_deck: self.voice_ids - rosetta_deck.voice_ids,
-                    rosetta_deck=rosetta_deck,
+                    lambda deck: self.voice_ids - deck.voice_ids,
+                    deck=deck,
                     title="All voice IDs",
                     move_voice_id_text="+",
                     move_voice_id_color="green",
-                    move_voice_id_lambda=lambda voice_id: rosetta_deck.voice_ids.add(
-                        voice_id
-                    ),
+                    move_voice_id_lambda=lambda voice_id: deck.voice_ids.add(voice_id),
                     side="right",
                     padx=(5, 10),
                 ),
@@ -283,4 +279,7 @@ class Ui(customtkinter.CTkFrame):
 
             [pack() for pack in pack_voice_id_scrolls]
 
-        _setup_voice_id_frame(rosetta_deck)
+        _setup_voice_id_frame(deck)
+
+    def show(self):
+        self.tkraise()

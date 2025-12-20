@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 
 from .azure import Foundry
 from .mainmenu import Ui as MainmenuUi
+from .review import Ui as ReviewUi
 
 
 class Ui(customtkinter.CTk):
@@ -21,12 +22,17 @@ class Ui(customtkinter.CTk):
         self.mainmenu = MainmenuUi(
             self, parent_frame=parent_frame, foundry=self.foundry
         )
+        self.review = ReviewUi(self, parent_frame=parent_frame, foundry=self.foundry)
         self.mainmenu.grid(row=0, column=0, sticky="nsew")
+        self.review.grid(row=0, column=0, sticky="nsew")
 
         self.show_mainmenu()
 
     def show_mainmenu(self):
-        self.mainmenu.tkraise()
+        self.mainmenu.show()
+
+    def show_review(self, deck):
+        self.review.show(deck)
 
     def _geometry(self, width_ratio, height_ratio):
         app_width = int(self.winfo_screenwidth() * width_ratio)
