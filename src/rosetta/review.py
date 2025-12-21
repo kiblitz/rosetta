@@ -61,10 +61,20 @@ class Ui(customtkinter.CTkFrame):
         inner_frame.place(relx=0.5, rely=0.5, anchor="center")
 
         question_frame = customtkinter.CTkFrame(inner_frame)
-        question_label = customtkinter.CTkLabel(
-            question_frame, text=review_card.get_question()
-        )
-        question_label.pack(side="left")
+        question = review_card.get_question(self.foundry)
+        # TODO-someday: we should probably return a variant instead of abusing optionals
+        if question is not None:
+            question_label = customtkinter.CTkLabel(question_frame, text=question)
+            question_label.pack(side="left")
+        else:
+            speak_button = customtkinter.CTkButton(
+                question_frame,
+                text="(Play Again)",
+                command=lambda review_card=review_card: review_card.get_question(
+                    self.foundry, use_last_voice_id=True
+                ),
+            )
+            speak_button.pack(side="left")
         question_frame.pack(padx=5, pady=5)
 
         answer_frame = customtkinter.CTkFrame(inner_frame)
@@ -90,37 +100,37 @@ class Ui(customtkinter.CTkFrame):
 
         _setup_answer_frame(False)
 
-        def _review(deck, card, rating):
-            deck.review(card, rating=rating)
+        def _review(deck, review_card, rating):
+            deck.review(review_card, rating=rating)
             self._setup_reviewer()
 
         rating_frame = customtkinter.CTkFrame(inner_frame)
         again_button = customtkinter.CTkButton(
             rating_frame,
             text="again",
-            command=lambda deck=deck, card=review_card: _review(
-                deck, card, fsrs.Rating.Again
+            command=lambda deck=deck, review_card=review_card: _review(
+                deck, review_card, fsrs.Rating.Again
             ),
         )
         hard_button = customtkinter.CTkButton(
             rating_frame,
             text="hard",
-            command=lambda deck=deck, card=review_card: _review(
-                deck, card, fsrs.Rating.Hard
+            command=lambda deck=deck, review_card=review_card: _review(
+                deck, review_card, fsrs.Rating.Hard
             ),
         )
         good_button = customtkinter.CTkButton(
             rating_frame,
             text="good",
-            command=lambda deck=deck, card=review_card: _review(
-                deck, card, fsrs.Rating.Good
+            command=lambda deck=deck, review_card=review_card: _review(
+                deck, review_card, fsrs.Rating.Good
             ),
         )
         easy_button = customtkinter.CTkButton(
             rating_frame,
             text="easy",
-            command=lambda deck=deck, card=review_card: _review(
-                deck, card, fsrs.Rating.Easy
+            command=lambda deck=deck, review_card=review_card: _review(
+                deck, review_card, fsrs.Rating.Easy
             ),
         )
         again_button.pack(side="left", padx=5, pady=5)

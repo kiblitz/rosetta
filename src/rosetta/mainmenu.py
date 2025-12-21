@@ -79,7 +79,12 @@ class Ui(customtkinter.CTkFrame):
                 text=deckname,
                 command=lambda deck=deck: self.controller.show_review(deck),
             )
-            voice_ids = customtkinter.CTkLabel(row_frame, text=deck.voice_ids_str())
+            voice_ids = customtkinter.CTkLabel(
+                row_frame,
+                text=", ".join(deck.voice_ids)
+                if len(deck.voice_ids) > 0
+                else "<please add at least 1 voice id>",
+            )
             edit_button = customtkinter.CTkButton(
                 row_frame,
                 text="edit",

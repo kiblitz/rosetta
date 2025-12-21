@@ -32,6 +32,11 @@ class Ui(customtkinter.CTk):
         self.mainmenu.show()
 
     def show_review(self, deck):
+        if len(deck.voice_ids) == 0:
+            raise RuntimeError(
+                "Cannot open deck without any specified voice ids: {}".format(deck.name)
+            )
+
         self.review.show(deck)
 
     def _geometry(self, width_ratio, height_ratio):
