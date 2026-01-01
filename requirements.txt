@@ -18,10 +18,16 @@ fsrs==6.3.0
     # via rosetta (./pyproject.toml)
 idna==3.11
     # via requests
+lmdb==1.7.5
+    # via lmdbm
+lmdbm==0.0.6
+    # via rosetta (./pyproject.toml)
 packaging==25.0
     # via customtkinter
 pillow==12.0.0
     # via ttkwidgets
+platformdirs==4.5.1
+    # via rosetta (./pyproject.toml)
 python-dotenv==1.2.1
     # via rosetta (./pyproject.toml)
 requests==2.32.5
@@ -32,5 +38,6 @@ typing-extensions==4.15.0
     # via
     #   azure-core
     #   fsrs
+    #   lmdbm
 urllib3==2.6.2
     # via requests

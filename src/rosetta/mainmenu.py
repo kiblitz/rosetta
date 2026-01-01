@@ -5,21 +5,23 @@ import customtkinter
 from ttkwidgets.autocomplete import AutocompleteCombobox
 
 from .anki import Deck
+from .storage import StorageObj
 
 
 class Ui(customtkinter.CTkFrame):
-    def __init__(self, controller, *, parent_frame, foundry):
+    def __init__(self, controller, *, parent_frame, foundry, appdata):
         super().__init__(parent_frame)
         self.controller = controller
 
         self.foundry = foundry
+        self.appdata = appdata
 
         self._setup_state()
         self._setup_ui()
 
     def _setup_state(self):
-        self.decks = {}
-        self.voice_ids = set()
+        self.decks = StorageObj(self.appdata, key="decks", get_default=lambda: {})
+        self.voice_ids = StorageObj(self.appdata, key="voice_ids", get_default=set)
 
     def _setup_ui(self):
         self._setup_action_bar()
@@ -69,8 +71,8 @@ class Ui(customtkinter.CTkFrame):
         for widget in self.deck_scroll_frame.winfo_children():
             widget.destroy()
 
-        for idx, deckname in enumerate(self.decks):
-            deck = self.decks[deckname]
+        for idx, deckname in enumerate(self.decks.get()):
+            deck = self.decks.get()[deckname]
             row_frame = customtkinter.CTkFrame(self.deck_scroll_frame)
             row_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
@@ -102,7 +104,7 @@ class Ui(customtkinter.CTkFrame):
         for widget in self.voice_id_scroll_frame.winfo_children():
             widget.destroy()
 
-        for idx, voice_id in enumerate(self.voice_ids):
+        for idx, voice_id in enumerate(self.voice_ids.get()):
             row_frame = customtkinter.CTkFrame(self.voice_id_scroll_frame)
             row_frame.pack(fill="both", expand=True, padx=10, pady=5)
 
@@ -112,7 +114,8 @@ class Ui(customtkinter.CTkFrame):
             )
 
             def _on_delete(voice_id):
-                self.voice_ids.discard(voice_id)
+                self.voice_ids.get().discard(voice_id)
+                self.voice_ids.sync()
                 self._setup_voice_ids_scroll()
 
             delete_button = customtkinter.CTkButton(
@@ -161,7 +164,8 @@ class Ui(customtkinter.CTkFrame):
             popup.destroy()
             voice_id = popup_voice_id_var.get()
             if len(voice_id) > 0:
-                self.voice_ids.add(voice_id)
+                self.voice_ids.get().add(voice_id)
+                self.voice_ids.sync()
                 self._setup_voice_ids_scroll()
 
         popup_ok = customtkinter.CTkButton(popup, text="OK", command=_on_ok)
@@ -191,12 +195,13 @@ class Ui(customtkinter.CTkFrame):
         def _on_ok(deck):
             popup.destroy()
             if already_exists:
-                self.decks.pop(deck.name)
+                self.decks.get().pop(deck.name)
             deckname = popup_deckname_var.get()
             if len(deckname) > 0:
                 deck.name = deckname
-                self.decks[deckname] = deck
+                self.decks.get()[deckname] = deck
                 self._setup_decks_scroll()
+            self.decks.sync()
 
         popup_ok = customtkinter.CTkButton(
             popup_header_parent_frame,
@@ -271,7 +276,7 @@ class Ui(customtkinter.CTkFrame):
                     padx=(10, 5),
                 ),
                 _setup_voice_id_scroll_and_return_pack(
-                    lambda deck: self.voice_ids - deck.voice_ids,
+                    lambda deck: self.voice_ids.get() - deck.voice_ids,
                     deck=deck,
                     title="All voice IDs",
                     move_voice_id_text="+",

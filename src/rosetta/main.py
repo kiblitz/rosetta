@@ -1,5 +1,7 @@
 import customtkinter
+import platformdirs
 from dotenv import load_dotenv
+from lmdbm import Lmdb
 
 from .azure import Foundry
 from .mainmenu import Ui as MainmenuUi
@@ -7,7 +9,7 @@ from .review import Ui as ReviewUi
 
 
 class Ui(customtkinter.CTk):
-    def __init__(self):
+    def __init__(self, appdata):
         super().__init__()
         self.title("rosetta")
         self.geometry(self._geometry(0.5, 0.5))
@@ -18,11 +20,14 @@ class Ui(customtkinter.CTk):
         parent_frame.grid_columnconfigure(0, weight=1)
 
         self.foundry = Foundry()
+        self.appdata = appdata
 
         self.mainmenu = MainmenuUi(
-            self, parent_frame=parent_frame, foundry=self.foundry
+            self, parent_frame=parent_frame, foundry=self.foundry, appdata=self.appdata
         )
-        self.review = ReviewUi(self, parent_frame=parent_frame, foundry=self.foundry)
+        self.review = ReviewUi(
+            self, parent_frame=parent_frame, foundry=self.foundry, appdata=self.appdata
+        )
         self.mainmenu.grid(row=0, column=0, sticky="nsew")
         self.review.grid(row=0, column=0, sticky="nsew")
 
@@ -48,8 +53,11 @@ class Ui(customtkinter.CTk):
 def main():
     load_dotenv()
 
-    app = Ui()
-    app.mainloop()
+    appdata_path = platformdirs.user_data_path(appname="rosetta", appauthor="kiblitz")
+    appdata_path.mkdir(parents=True, exist_ok=True)
+    with Lmdb.open(str(appdata_path / "appdata.db"), "c") as db:
+        app = Ui(db)
+        app.mainloop()
 
     """
     voice_ids = [

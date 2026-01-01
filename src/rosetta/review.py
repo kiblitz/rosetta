@@ -3,11 +3,12 @@ import fsrs
 
 
 class Ui(customtkinter.CTkFrame):
-    def __init__(self, controller, *, parent_frame, foundry):
+    def __init__(self, controller, *, parent_frame, foundry, appdata):
         super().__init__(parent_frame)
         self.controller = controller
 
         self.foundry = foundry
+        self.appdata = appdata
         self.deck = None
 
         self._setup_ui()
